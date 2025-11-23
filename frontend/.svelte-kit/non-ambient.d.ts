@@ -39,6 +39,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/" | "/api" | "/api/" | "/api/predict" | "/api/predict/" | "/api/train" | "/api/train/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/favicon.png" | "/fonts/Inter.ttf" | "/logo.webp" | "/nextwave.png" | string & {};
+		Asset(): "/.DS_Store" | "/favicon.png" | "/fonts/Inter.ttf" | "/logo.webp" | "/nextwave.png" | string & {};
 	}
 }
