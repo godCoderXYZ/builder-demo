@@ -20,11 +20,12 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://deep-dive-into-ai.vercel.app", # for production
-        "http://localhost:5173",                # Vite dev server
-        "http://localhost:4173",                # Vite preview
-    ],
+    allow_origins=["*"],
+    # allow_origins=[
+    #     "https://deep-dive-into-ai.vercel.app", # for production
+    #     "http://localhost:5173",                # Vite dev server
+    #     "http://localhost:4173",                # Vite preview
+    # ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
