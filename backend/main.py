@@ -41,20 +41,23 @@ print("✅ Models directory created")
 
 built_model = None
 
-print("📥 Loading MNIST data...")
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-print("✅ MNIST data loaded")
+# Lazy Load
+def load_mnist_data():
+    print("📥 Loading MNIST data...")
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    print("✅ MNIST data loaded")
 
-print("🔧 Preprocessing data...")
-x_train = x_train / 255
-x_test = x_test / 255
+    print("🔧 Preprocessing data...")
+    x_train = x_train / 255
+    x_test = x_test / 255
 
-x_train = x_train.reshape((x_train.shape[0],28,28,1))
-x_test = x_test.reshape((x_test.shape[0],28,28,1))
+    x_train = x_train.reshape((x_train.shape[0],28,28,1))
+    x_test = x_test.reshape((x_test.shape[0],28,28,1))
 
-y_train = tf.keras.utils.to_categorical(y_train)
-y_test = tf.keras.utils.to_categorical(y_test)
-print("✅ Data preprocessing completed")
+    y_train = tf.keras.utils.to_categorical(y_train)
+    y_test = tf.keras.utils.to_categorical(y_test)
+    print("✅ Data preprocessing completed")
+    return (x_train, y_train), (x_test, y_test)
 
 app = FastAPI()
 
@@ -224,14 +227,16 @@ def ParamLimit(value):
         return True
     return False
 
-def fr_train_model(model, built_model, method, c_x_train, c_y_train):
+def fr_train_model(model, built_model, c_x_train, c_y_train):
     time_now = time.time()
 
-    if method == "pretrained":
-        built_model.fit(x_train,y_train, epochs=model.epochs, batch_size=100, verbose=2)
+    # if method == "pretrained":
+    #     built_model.fit(x_train,y_train, epochs=model.epochs, batch_size=100, verbose=2)
 
-    elif method == "custom":
-        built_model.fit(c_x_train,c_y_train, epochs=model.epochs, batch_size=100, verbose=2)
+    # elif method == "custom":
+    #     built_model.fit(c_x_train,c_y_train, epochs=model.epochs, batch_size=100, verbose=2)
+
+    built_model.fit(c_x_train,c_y_train, epochs=model.epochs, batch_size=100, verbose=2)
     
     return built_model, round(time.time() - time_now,3)
 
@@ -245,6 +250,8 @@ async def health_check():
 
 @app.post("/train/")
 async def train_model(model: Model):
+
+    (x_train, y_train), (x_test, y_test) = load_mnist_data()
     
     model_accuracy = None
 
@@ -267,7 +274,7 @@ async def train_model(model: Model):
                 Stats(modelID="0", accuracy=0, parameters=too_many_params_premade, trainingTime=0, error=error_params)
             ]
 
-        built_model,tt = fr_train_model(model,built_model,"pretrained", None, None)
+        built_model,tt = fr_train_model(model,built_model, x_train, y_train)
 
         model_accuracy = float(round(built_model.evaluate(x_test,y_test)[1],4) * 100)
         
@@ -301,7 +308,7 @@ async def train_model(model: Model):
 
         c_y_train = np.array(c_y_train)
 
-        built_model,tt = fr_train_model(model,built_model,"custom", c_x_train, c_y_train)
+        built_model,tt = fr_train_model(model,built_model, c_x_train, c_y_train)
 
         #if model accuracy is 101 it means custom model was trained so accuracy not available
         model_accuracy = 101
