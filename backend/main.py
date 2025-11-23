@@ -2,6 +2,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import uuid
@@ -14,6 +15,20 @@ import tensorflow.keras.datasets.mnist as mnist
 
 import time
 import os
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://deep-dive-into-ai.vercel.app", # for production
+        "http://localhost:5173",                # Vite dev server
+        "http://localhost:4173",                # Vite preview
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 built_model = None
 
@@ -288,3 +303,8 @@ async def predict(predict: Predict):
     return [
         Prediction(prediction=prediction)
     ]
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
