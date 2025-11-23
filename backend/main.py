@@ -1,20 +1,60 @@
+print("🚀 Script starting...")
+
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
+print("✅ SSL context set")
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+print("✅ FastAPI imports done")
+
 from pydantic import BaseModel
 from typing import List
 import uuid
 
+print("✅ More imports done")
+
 import tensorflow as tf
+
+print("✅ TensorFlow imported")
 
 import numpy as np
 
+print("✅ NumPy imported")
+
 import tensorflow.keras.datasets.mnist as mnist
+
+print("✅ Keras datasets imported")
 
 import time
 import os
+
+print("✅ All imports completed")
+print("🚀 Starting FastAPI application...")
+
+# Create models directory
+os.makedirs("models", exist_ok=True)
+
+print("✅ Models directory created")
+
+built_model = None
+
+print("📥 Loading MNIST data...")
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+print("✅ MNIST data loaded")
+
+print("🔧 Preprocessing data...")
+x_train = x_train / 255
+x_test = x_test / 255
+
+x_train = x_train.reshape((x_train.shape[0],28,28,1))
+x_test = x_test.reshape((x_test.shape[0],28,28,1))
+
+y_train = tf.keras.utils.to_categorical(y_train)
+y_test = tf.keras.utils.to_categorical(y_test)
+print("✅ Data preprocessing completed")
 
 app = FastAPI()
 
@@ -31,18 +71,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-built_model = None
-
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-
-x_train = x_train / 255
-x_test = x_test / 255
-
-x_train = x_train.reshape((x_train.shape[0],28,28,1))
-x_test = x_test.reshape((x_test.shape[0],28,28,1))
-
-y_train = tf.keras.utils.to_categorical(y_train)
-y_test = tf.keras.utils.to_categorical(y_test)
+print("✅ FastAPI app created successfully")
 
 #SUBCLASS
 #each layer will be inputted as this, as part of an array of layers in Model
@@ -309,3 +338,5 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+print("🎉 All routes registered, app should be ready")
