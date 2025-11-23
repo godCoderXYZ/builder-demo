@@ -108,7 +108,7 @@
 			learningRate,
 			customData,
 		}
-		const response = await fetch('/train/', {
+		const response = await fetch('/api/train/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
