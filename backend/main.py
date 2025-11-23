@@ -371,4 +371,21 @@ signal.signal(signal.SIGINT, signal_handler)
 #     print(f"🚀 Starting server on port {port}")
 #     uvicorn.run(app, host="0.0.0.0", port=port)
 
+import asyncio
+import threading
+
+# Add this at the very end
+def keep_alive():
+    while True:
+        asyncio.sleep(3600)  # Sleep for 1 hour
+
+if __name__ == "__main__":
+    # Start a background thread to keep the process alive
+    thread = threading.Thread(target=keep_alive, daemon=True)
+    thread.start()
+    
+    import uvicorn
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
 print("🎉 All routes registered, app should be ready")
