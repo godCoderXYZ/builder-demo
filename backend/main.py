@@ -239,6 +239,10 @@ def fr_train_model(model, built_model, method, c_x_train, c_y_train):
 async def root():
     return {"message": "You were the chosen one..."}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": time.time()}
+
 @app.post("/train/")
 async def train_model(model: Model):
     
