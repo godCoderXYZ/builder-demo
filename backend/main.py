@@ -244,9 +244,18 @@ def fr_train_model(model, built_model, c_x_train, c_y_train):
 async def root():
     return {"message": "You were the chosen one..."}
 
+# Miscellaneous Routes
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": time.time()}
+
+@app.on_event("startup")
+async def startup_event():
+    print("✅ FastAPI startup complete - app is ready to receive requests")
+
+@app.on_event("shutdown") 
+async def shutdown_event():
+    print("🛑 FastAPI shutting down")
 
 @app.post("/train/")
 async def train_model(model: Model):
@@ -345,10 +354,21 @@ async def predict(predict: Predict):
         Prediction(prediction=prediction)
     ]
 
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8080))
-    print(f"🚀 Starting server on port {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+# DEBUGGING
+import signal
+import sys
+
+def signal_handler(sig, frame):
+    print(f"🛑 Received signal {sig}, shutting down...")
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
+# if __name__ == "__main__":
+#     import uvicorn
+#     port = int(os.environ.get("PORT", 8080))
+#     print(f"🚀 Starting server on port {port}")
+#     uvicorn.run(app, host="0.0.0.0", port=port)
 
 print("🎉 All routes registered, app should be ready")
