@@ -50,17 +50,33 @@
                 <option value="7">7x7</option>
             </select>
             {:else}
-            <input bind:value={block.layers} type="range" min="8" max="32" class="range" step="2" />
+            <input bind:value={block.layers} type="range" min="4" max="32" class="range" step="1" />
             <p>Nodes: {block.layers}</p>
             {/if}
             <select class="select w-full max-w-xs">
                 <option disabled>Activation Function: </option>
                 <option>ReLU</option>
             </select>
+            <div class="pt-4"></div>
+                <p class="pb-2 text-sm">Layer Nodes Visualization:</p>
+                <!-- <svg width="100%" height={Math.ceil(block.layers / 8) * 28} viewBox="0 0 200 {Math.ceil(block.layers / 8) * 28}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Neural network layer visualization"> -->
+                <svg width="100%" height={10 + (Math.floor(block.layers / Math.min(+block.layers, 8)) + 1) * Math.max(28, 60 / (Math.ceil(+block.layers / Math.min(+block.layers, 8)) + 1))} viewBox="0 0 200 {10 + (Math.floor(block.layers / Math.min(+block.layers, 8)) + 1) * Math.max(28, 60 / (Math.ceil(+block.layers / Math.min(+block.layers, 8)) + 1))}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Neural network layer visualization">
+                    {#each Array(+block.layers) as _, i (i)}
+                        <circle
+                            cx={((i % Math.min(+block.layers, 8)) + 1) * (200 / (Math.min(+block.layers, 8) + 1))}
+                            cy={(Math.floor(i / Math.min(+block.layers, 8)) + 1) * Math.max(28, 60 / (Math.ceil(+block.layers / Math.min(+block.layers, 8)) + 1))}
+                            r="6"
+                            fill="#60a5fa"
+                            stroke="#1e3a8a"
+                            stroke-width="1"
+                        />
+                    {/each}
+                </svg>
+            </div>
         </div>
     </div>
     </div>
-    </div>
+    <!-- </div> -->
     {/each}
 </section>
 {#if dropFromOthersDisabled}
