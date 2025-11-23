@@ -14,16 +14,16 @@
     let blocks = [
 		{
 			id: '1',
-			name: 'Dense Layer',
+			name: 'Layer',
 			layers: 16,
 			pooling: 0,
 		},
-		{
-			id: '2',
-			name: 'Convolutional Layer',
-			layers: 8,
-			pooling: 0,
-		},
+		// {
+		// 	id: '2',
+		// 	name: 'Convolutional Layer',
+		// 	layers: 8,
+		// 	pooling: 0,
+		// },
 	];
     let items: any[] = [];
 
@@ -242,8 +242,8 @@
 		  </label>
 		  <div tabindex="0" class="card compact dropdown-content z-[1] shadow bg-base-100 rounded-box w-64">
 		    <div class="card-body">
-		      <h2 class="card-title">About Layer</h2>
-		      <p>This layer is where the data is inputted. It has to be the same shape as the data but we handle that for you!</p>
+		      <h2 class="card-title">Input Layer</h2>
+		      <p>This layer is where the data is inputted.</p>
 		    </div>
 		  </div>
 		</div>
@@ -296,7 +296,7 @@
 	<div class="px-2 pt-2">
 		<div class="form-control">
 			<label class="label cursor-pointer">
-			  <span class="label-text">Use pre-made number data</span> 
+			  <span class="label-text">Use MNIST dataset</span> 
 			  <input value={false} bind:group={useCustomData} type="radio" name="radio-10" class="radio checked:bg-blue-500" checked />
 			</label>
 		</div>

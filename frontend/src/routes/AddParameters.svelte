@@ -15,6 +15,7 @@
 		    <div class="card-body">
 		      <h2 class="card-title">Epochs</h2>
 		      <p>The number of times the model trains on the data set. For example, if you choose two epochs, the model will see each data point twice.</p>
+          <p>The MNIST dataset for digit recognition contains tens of thousands of data points.</p>
 		    </div>
 		  </div>
 		</div>
@@ -38,7 +39,7 @@
 		  <div tabindex="0" class="card compact dropdown-content z-[1] shadow bg-base-100 rounded-box w-64">
 		    <div class="card-body">
 		      <h2 class="card-title">Learning rate</h2>
-		      <p>How fast the model learns, a higher number may increase accuracy in the short term but could lead to overfitting.</p>
+		      <p>How fast the model learns. A high number may increase accuracy in the short term but could lead to instability by overshooting.</p>
 		    </div>
 		  </div>
 		</div>

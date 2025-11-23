@@ -37,7 +37,7 @@
 <section class="p-6 relative" use:dndzone="{{items, flipDurationMs, dropFromOthersDisabled, dropTargetStyle: {}}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
     {#each items as block(block.id)}
     <div class="mb-6 touch-none" animate:flip="{{duration: flipDurationMs}}">
-    <div class="flex flex-row items-center w-48 min-h-16 border-2 rounded-2xl border-base-100 {block.name == 'Input Layer' ? 'bg-[#323d76]' : block.name == 'Dense Layer' ? 'bg-[#460e0e]' : block.name == 'Convolutional Layer' ? 'bg-[#1a2e1a]' : 'bg-blue-950'}">
+    <div class="flex flex-row items-center w-48 min-h-16 border-2 rounded-2xl border-base-100 {block.name == 'Input Layer' ? 'bg-[#323d76]' : block.name == 'Layer' ? 'bg-[#460e0e]' : block.name == 'Convolutional Layer' ? 'bg-[#1a2e1a]' : 'bg-blue-950'}">
     <svg class="w-4 h-4" fill="#ffffff" width="800px" height="800px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.375 3.67c0-.645-.56-1.17-1.25-1.17s-1.25.525-1.25 1.17c0 .646.56 1.17 1.25 1.17s1.25-.524 1.25-1.17zm0 8.66c0-.646-.56-1.17-1.25-1.17s-1.25.524-1.25 1.17c0 .645.56 1.17 1.25 1.17s1.25-.525 1.25-1.17zm-1.25-5.5c.69 0 1.25.525 1.25 1.17 0 .645-.56 1.17-1.25 1.17S4.875 8.645 4.875 8c0-.645.56-1.17 1.25-1.17zm5-3.16c0-.645-.56-1.17-1.25-1.17s-1.25.525-1.25 1.17c0 .646.56 1.17 1.25 1.17s1.25-.524 1.25-1.17zm-1.25 7.49c.69 0 1.25.524 1.25 1.17 0 .645-.56 1.17-1.25 1.17s-1.25-.525-1.25-1.17c0-.646.56-1.17 1.25-1.17zM11.125 8c0-.645-.56-1.17-1.25-1.17s-1.25.525-1.25 1.17c0 .645.56 1.17 1.25 1.17s1.25-.525 1.25-1.17z"/></svg>
     <p class="text-lg p-2">
         {block.name}
@@ -48,9 +48,9 @@
         </label>
         <div tabindex="0" class="card compact dropdown-content z-[1] shadow bg-base-100 rounded-box w-48">
             <div class="card-body">
-                <h2 class="card-title">About Layer</h2>
-                {#if block.name == "Dense Layer"}
-                <p>Layer consisting of a line of nodes, each node holds a single value and passes this value on to the next layer.</p>
+                <h2 class="card-title">Layer</h2>
+                {#if block.name == "Layer"}
+                <p>Consists of many nodes. Each node holds a single value and passes this value on to the next layer.</p>
                 {:else if block.name == "Convolutional Layer"}
                 <p>Layer consisting of multidimensional nodes, which could represent data like images.</p>
                 {/if}

@@ -27,7 +27,7 @@
 <section class="w-72 px-6 pb-12" use:dndzone="{{items, flipDurationMs, dropFromOthersDisabled, dropTargetStyle: {outline: 'rgba(50, 61, 118, 1) solid 4px'}}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
     {#each items as block(block.id)}
     <div class="touch-none" animate:flip="{{duration: flipDurationMs}}">
-    <div class="flex flex-row items-center min-h-16 border-2 rounded-2xl border-base-100 {block.name == 'Dense Layer' ? 'bg-[#460e0e]' : block.name == 'Convolutional Layer' ? 'bg-[#1a2e1a]' : 'bg-blue-950'}">
+    <div class="flex flex-row items-center min-h-16 border-2 rounded-2xl border-base-100 {block.name == 'Layer' ? 'bg-[#460e0e]' : block.name == 'Convolutional Layer' ? 'bg-[#1a2e1a]' : 'bg-blue-950'}">
     <button on:click={() => removeBlock(block.id)} class="btn btn-sm btn-circle bg-black bg-opacity-20 ml-1">
         <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512"><polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49"/></svg>
     </button>

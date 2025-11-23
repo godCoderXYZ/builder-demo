@@ -1,3 +1,6 @@
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
@@ -28,7 +31,7 @@ y_test = tf.keras.utils.to_categorical(y_test)
 #SUBCLASS
 #each layer will be inputted as this, as part of an array of layers in Model
 class Layer(BaseModel):
-    #the name is a string like "Dense Layer" or "Convolutional Layer", case sensitive
+    #the name is a string like "Layer" or "Convolutional Layer", case sensitive
     name: str
     #the number of layers or nodes for that layer as a number, example: 32
     layers: int
@@ -146,9 +149,9 @@ def build_model(model: Model, type, numclasses):
     built_model.add(tf.keras.Input(shape=(28,28,1)))
 
     for pos,layer in enumerate(model.layers):
-        if layer.name == "Dense Layer" and (prev_layer == "Convolutional Layer" or pos == 0):
+        if layer.name == "Layer" and (prev_layer == "Convolutional Layer" or pos == 0):
             built_model.add(tf.keras.layers.Flatten())
-        elif layer.name == "Convolutional Layer" and prev_layer == "Dense Layer":
+        elif layer.name == "Convolutional Layer" and prev_layer == "Layer":
             built_model.add(tf.keras.layers.Reshape(target_shape=(prev_nodes,1,1)))
 
         if layer.name == "Convolutional Layer":
@@ -158,7 +161,7 @@ def build_model(model: Model, type, numclasses):
                     built_model.add(tf.keras.layers.MaxPool2D((layer.pooling,layer.pooling)))
                 except:
                     raise PoolingError()
-        elif layer.name == "Dense Layer":
+        elif layer.name == "Layer":
             built_model.add(tf.keras.layers.Dense(layer.layers, activation="relu"))
         else:
             print("Error: Unrecognized Layer")
@@ -205,7 +208,7 @@ async def train_model(model: Model):
                 Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
             ]
 
-        built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(lr=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
+        built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
 
         too_many_params_premade = built_model.count_params()
 
@@ -237,7 +240,7 @@ async def train_model(model: Model):
                 Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
             ]
         
-        built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(lr=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
+        built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
 
         too_many_params_custom = built_model.count_params()
 

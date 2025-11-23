@@ -1,0 +1,9 @@
+{
+	"/": [],
+	"/api/predict": [
+		"src/routes/api/predict/+server.ts"
+	],
+	"/api/train": [
+		"src/routes/api/train/+server.ts"
+	]
+}
