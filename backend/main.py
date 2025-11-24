@@ -41,9 +41,9 @@ print("✅ Models directory created")
 
 built_model = None
 
-# MULTIPROCESSING SOLUTION
-from multiprocessing import set_start_method
-from multiprocessing import Process, Manager
+# # MULTIPROCESSING SOLUTION
+# from multiprocessing import set_start_method
+# from multiprocessing import Process, Manager
 import os
 
 # Reduce TensorFlow memory usage
@@ -52,11 +52,11 @@ os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 os.environ['TF_GPU_THREAD_MODE'] = 'gpu_private'
 os.environ['OMP_NUM_THREADS'] = '1'
 
-# Set multiprocessing start method
-try:
-    set_start_method('spawn')
-except RuntimeError:
-    pass  # Already set
+# # Set multiprocessing start method
+# try:
+#     set_start_method('spawn')
+# except RuntimeError:
+#     pass  # Already set
 
 # Lazy Load
 def load_mnist_data():
@@ -276,6 +276,87 @@ async def shutdown_event():
 
 @app.post("/train/")
 async def train_model(model: Model):
+    (x_train, y_train), (x_test, y_test) = load_mnist_data()
+
+    model_accuracy = None
+
+    if (len(model.customData) == 0):
+
+        try:
+            built_model = build_model(model, "pretrained", None)
+        except PoolingError as e:
+            return [
+                Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
+            ]
+
+        built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
+
+        too_many_params_premade = built_model.count_params()
+
+        if ParamLimit(too_many_params_premade):
+            error_params = "Model is too big, you have " + str(too_many_params_premade) + " parameters, try decreasing number of layers or other parameters. Please don't set our servers on fire :("
+            return [
+                Stats(modelID="0", accuracy=0, parameters=too_many_params_premade, trainingTime=0, error=error_params)
+            ]
+
+        built_model,tt = fr_train_model(model,built_model, x_train, y_train)
+
+        model_accuracy = float(round(built_model.evaluate(x_test,y_test)[1],4) * 100)
+        
+    else:
+        c_y_train = []
+        c_x_train = []
+
+        for instance in model.customData:
+            c_x_train.append(instance.drawing)
+            c_y_train.append(instance.label)
+
+        c_x_train = np.array(c_x_train).reshape(len(c_x_train),28,28,1) / 255
+
+        c_y_train,numclasses = fKeras(c_y_train)
+        try:
+            built_model = build_model(model, "custom", numclasses)
+        except PoolingError as e:
+            return [
+                Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
+            ]
+        
+        built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
+
+        too_many_params_custom = built_model.count_params()
+
+        if ParamLimit(too_many_params_custom):
+            error_params = "Model is too big, you have " + str(too_many_params_custom) + " parameters, try decreasing number of layers or other parameters. Please don't set our servers on fire :("
+            return [
+                Stats(modelID="0", accuracy=0, parameters=too_many_params_premade, trainingTime=0, error=error_params)
+            ]
+
+        c_y_train = np.array(c_y_train)
+
+        built_model,tt = fr_train_model(model,built_model, c_x_train, c_y_train)
+
+        #if model accuracy is 101 it means custom model was trained so accuracy not available
+        model_accuracy = 101
+
+    model_params = built_model.count_params()
+
+    model_id = str(uuid.uuid4())
+    model_name = "model-" + model_id + ".keras"
+
+    built_model.save("models/" + model_name)
+
+    #delete models older than 1 day
+    for model_filename in os.listdir("models"):
+        model_location = os.path.join("models", model_filename)
+        model_time = os.path.getmtime(model_location)
+        if(model_time < time.time() - 60*60*24):
+            os.remove(model_location)
+
+    return [
+        Stats(modelID=model_id, accuracy=model_accuracy, parameters=model_params, trainingTime=tt, error="")
+    ]
+
+async def train_model_multiprocess(model: Model):
     manager = Manager()
     return_result = manager.dict()
 
@@ -375,6 +456,18 @@ async def train_model(model: Model):
 
 @app.post("/predict/")
 async def predict(predict: Predict):
+    pred_model_name = "model-" + predict.modelID + ".keras"
+    loaded_model = tf.keras.models.load_model("models/" + pred_model_name)
+
+    image = np.array(predict.predictImg).reshape((1,28,28,1))
+
+    prediction =  str(predict.labels[FindNum(loaded_model.predict(image))])
+
+    return [
+        Prediction(prediction=prediction)
+    ]
+
+async def predict_multiprocess(predict: Predict):
     manager = Manager()
     return_result = manager.dict()
 
