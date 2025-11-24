@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 export const POST: RequestHandler = (async ({request}) => {
     const inputsPred = await request.json();
 
-    // const response = await fetch('http://127.0.0.1:8000/predict/', {
+    // const response = await fetch('http://127.0.0.1:8080/predict/', {
     const response = await fetch('https://builder-demo-production-f269.up.railway.app/predict/', {
         method: 'POST',
         headers: {
