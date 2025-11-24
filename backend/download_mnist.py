@@ -8,6 +8,12 @@ print("📥 Downloading and preprocessing MNIST data...")
 # Download MNIST
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
+# Cut down dataset size for memory constraints
+x_train = x_train[:16000]
+y_train = y_train[:16000]
+x_test = x_test[:4000]
+y_test = y_test[:4000]
+
 # Preprocess
 x_train = x_train / 255.0
 x_test = x_test / 255.0
