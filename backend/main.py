@@ -619,7 +619,9 @@ def predict():
         print(f"❌ Prediction error: {e}")
         return jsonify([{"prediction": f"Error: {str(e)}"}])
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    print(f"🚀 Starting Flask server on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=False)
+# if __name__ == '__main__':
+#     port = int(os.environ.get('PORT', 8080))
+#     print(f"🚀 Starting Flask server on port {port}")
+#     app.run(host='0.0.0.0', port=port, debug=False)
+
+print("🎉 Flask app ready for production")

@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "python main.py"
+startCommand = "gunicorn -w 1 -b 0.0.0.0:$PORT main:app"
 
 [build.environment]
 PYTHON_VERSION = "3.11"
