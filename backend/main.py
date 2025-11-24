@@ -46,6 +46,12 @@ from multiprocessing import set_start_method
 from multiprocessing import Process, Manager
 import os
 
+# Reduce TensorFlow memory usage
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TF logs
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+os.environ['TF_GPU_THREAD_MODE'] = 'gpu_private'
+os.environ['OMP_NUM_THREADS'] = '1'
+
 # Set multiprocessing start method
 try:
     set_start_method('spawn')
