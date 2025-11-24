@@ -619,6 +619,16 @@ def predict():
         print(f"❌ Prediction error: {e}")
         return jsonify([{"prediction": f"Error: {str(e)}"}])
 
+# DEBUGGING ROUTE
+@app.route('/simple-test/', methods=['POST'])
+def simple_test():
+    try:
+        print("✅ Simple test endpoint reached")
+        return jsonify({"status": "simple test works", "timestamp": time.time()})
+    except Exception as e:
+        print(f"❌ Simple test error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 # if __name__ == '__main__':
 #     port = int(os.environ.get('PORT', 8080))
 #     print(f"🚀 Starting Flask server on port {port}")
