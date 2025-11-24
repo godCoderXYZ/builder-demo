@@ -356,103 +356,103 @@ async def train_model(model: Model):
         Stats(modelID=model_id, accuracy=model_accuracy, parameters=model_params, trainingTime=tt, error="")
     ]
 
-async def train_model_multiprocess(model: Model):
-    manager = Manager()
-    return_result = manager.dict()
+# async def train_model_multiprocess(model: Model):
+#     manager = Manager()
+#     return_result = manager.dict()
 
-    def train_process(res):
-        (x_train, y_train), (x_test, y_test) = load_mnist_data()
+#     def train_process(res):
+#         (x_train, y_train), (x_test, y_test) = load_mnist_data()
         
-        model_accuracy = None
+#         model_accuracy = None
 
-        if (len(model.customData) == 0):
+#         if (len(model.customData) == 0):
 
-            try:
-                built_model = build_model(model, "pretrained", None)
-            except PoolingError as e:
-                res['result'] = [
-                    Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
-                ]
-                return
+#             try:
+#                 built_model = build_model(model, "pretrained", None)
+#             except PoolingError as e:
+#                 res['result'] = [
+#                     Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
+#                 ]
+#                 return
 
-            built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
+#             built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
 
-            too_many_params_premade = built_model.count_params()
+#             too_many_params_premade = built_model.count_params()
 
-            if ParamLimit(too_many_params_premade):
-                error_params = "Model is too big, you have " + str(too_many_params_premade) + " parameters, try decreasing number of layers or other parameters. Please don't set our servers on fire :("
-                res['result'] = [
-                    Stats(modelID="0", accuracy=0, parameters=too_many_params_premade, trainingTime=0, error=error_params)
-                ]
-                return
+#             if ParamLimit(too_many_params_premade):
+#                 error_params = "Model is too big, you have " + str(too_many_params_premade) + " parameters, try decreasing number of layers or other parameters. Please don't set our servers on fire :("
+#                 res['result'] = [
+#                     Stats(modelID="0", accuracy=0, parameters=too_many_params_premade, trainingTime=0, error=error_params)
+#                 ]
+#                 return
 
-            built_model,tt = fr_train_model(model,built_model, x_train, y_train)
+#             built_model,tt = fr_train_model(model,built_model, x_train, y_train)
 
-            model_accuracy = float(round(built_model.evaluate(x_test,y_test)[1],4) * 100)
+#             model_accuracy = float(round(built_model.evaluate(x_test,y_test)[1],4) * 100)
             
-        else:
-            c_y_train = []
-            c_x_train = []
+#         else:
+#             c_y_train = []
+#             c_x_train = []
 
-            for instance in model.customData:
-                c_x_train.append(instance.drawing)
-                c_y_train.append(instance.label)
+#             for instance in model.customData:
+#                 c_x_train.append(instance.drawing)
+#                 c_y_train.append(instance.label)
 
-            c_x_train = np.array(c_x_train).reshape(len(c_x_train),28,28,1) / 255
+#             c_x_train = np.array(c_x_train).reshape(len(c_x_train),28,28,1) / 255
 
-            c_y_train,numclasses = fKeras(c_y_train)
-            try:
-                built_model = build_model(model, "custom", numclasses)
-            except PoolingError as e:
-                res['result'] = [
-                    Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
-                ]
-                return
+#             c_y_train,numclasses = fKeras(c_y_train)
+#             try:
+#                 built_model = build_model(model, "custom", numclasses)
+#             except PoolingError as e:
+#                 res['result'] = [
+#                     Stats(modelID="0", accuracy=0, parameters=0, trainingTime=0, error="Error during pooling")
+#                 ]
+#                 return
             
-            built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
+#             built_model.compile(metrics=["accuracy"], optimizer=tf.keras.optimizers.Adam(learning_rate=model.learningRate), loss=tf.keras.losses.CategoricalCrossentropy())
 
-            too_many_params_custom = built_model.count_params()
+#             too_many_params_custom = built_model.count_params()
 
-            if ParamLimit(too_many_params_custom):
-                error_params = "Model is too big, you have " + str(too_many_params_custom) + " parameters, try decreasing number of layers or other parameters. Please don't set our servers on fire :("
-                res['result'] = [
-                    Stats(modelID="0", accuracy=0, parameters=too_many_params_premade, trainingTime=0, error=error_params)
-                ]
-                return
+#             if ParamLimit(too_many_params_custom):
+#                 error_params = "Model is too big, you have " + str(too_many_params_custom) + " parameters, try decreasing number of layers or other parameters. Please don't set our servers on fire :("
+#                 res['result'] = [
+#                     Stats(modelID="0", accuracy=0, parameters=too_many_params_premade, trainingTime=0, error=error_params)
+#                 ]
+#                 return
 
-            c_y_train = np.array(c_y_train)
+#             c_y_train = np.array(c_y_train)
 
-            built_model,tt = fr_train_model(model,built_model, c_x_train, c_y_train)
+#             built_model,tt = fr_train_model(model,built_model, c_x_train, c_y_train)
 
-            #if model accuracy is 101 it means custom model was trained so accuracy not available
-            model_accuracy = 101
+#             #if model accuracy is 101 it means custom model was trained so accuracy not available
+#             model_accuracy = 101
 
-        model_params = built_model.count_params()
+#         model_params = built_model.count_params()
 
-        model_id = str(uuid.uuid4())
-        model_name = "model-" + model_id + ".keras"
+#         model_id = str(uuid.uuid4())
+#         model_name = "model-" + model_id + ".keras"
 
-        built_model.save("models/" + model_name)
+#         built_model.save("models/" + model_name)
 
-        #delete models older than 1 day
-        for model_filename in os.listdir("models"):
-            model_location = os.path.join("models", model_filename)
-            model_time = os.path.getmtime(model_location)
-            if(model_time < time.time() - 60*60*24):
-                os.remove(model_location)
+#         #delete models older than 1 day
+#         for model_filename in os.listdir("models"):
+#             model_location = os.path.join("models", model_filename)
+#             model_time = os.path.getmtime(model_location)
+#             if(model_time < time.time() - 60*60*24):
+#                 os.remove(model_location)
 
-        res['result'] = [
-            Stats(modelID=model_id, accuracy=model_accuracy, parameters=model_params, trainingTime=tt, error="")
-        ]
-        return
-        # return [
-        #     Stats(modelID=model_id, accuracy=model_accuracy, parameters=model_params, trainingTime=tt, error="")
-        # ]
+#         res['result'] = [
+#             Stats(modelID=model_id, accuracy=model_accuracy, parameters=model_params, trainingTime=tt, error="")
+#         ]
+#         return
+#         # return [
+#         #     Stats(modelID=model_id, accuracy=model_accuracy, parameters=model_params, trainingTime=tt, error="")
+#         # ]
     
-    p = Process(target=train_process, args=(return_result,))
-    p.start()
-    p.join()
-    return return_result['result']
+#     p = Process(target=train_process, args=(return_result,))
+#     p.start()
+#     p.join()
+#     return return_result['result']
 
 @app.post("/predict/")
 async def predict(predict: Predict):
@@ -467,28 +467,28 @@ async def predict(predict: Predict):
         Prediction(prediction=prediction)
     ]
 
-async def predict_multiprocess(predict: Predict):
-    manager = Manager()
-    return_result = manager.dict()
+# async def predict_multiprocess(predict: Predict):
+#     manager = Manager()
+#     return_result = manager.dict()
 
-    def predict_process(res):
+#     def predict_process(res):
 
-        pred_model_name = "model-" + predict.modelID + ".keras"
-        loaded_model = tf.keras.models.load_model("models/" + pred_model_name)
+#         pred_model_name = "model-" + predict.modelID + ".keras"
+#         loaded_model = tf.keras.models.load_model("models/" + pred_model_name)
 
-        image = np.array(predict.predictImg).reshape((1,28,28,1))
+#         image = np.array(predict.predictImg).reshape((1,28,28,1))
 
-        prediction =  str(predict.labels[FindNum(loaded_model.predict(image))])
+#         prediction =  str(predict.labels[FindNum(loaded_model.predict(image))])
 
-        res['result'] = [
-            Prediction(prediction=prediction)
-        ]
-        return
+#         res['result'] = [
+#             Prediction(prediction=prediction)
+#         ]
+#         return
     
-    p = Process(target=predict_process, args=(return_result,))
-    p.start()
-    p.join()
-    return return_result['result']
+#     p = Process(target=predict_process, args=(return_result,))
+#     p.start()
+#     p.join()
+#     return return_result['result']
 
 
 # if __name__ == "__main__":
