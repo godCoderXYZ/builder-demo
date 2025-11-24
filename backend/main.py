@@ -407,115 +407,256 @@
 # print("🎉 All routes registered, app should be ready")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+# from flask import Flask, request, jsonify
+# from flask_cors import CORS
+# import tensorflow as tf
+# import numpy as np
+# import tensorflow.keras.datasets.mnist as mnist
+# import time
+# import os
+# import uuid
+
+# print("🚀 Starting Flask application...")
+
+# # Reduce TensorFlow logging
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+# app = Flask(__name__)
+# CORS(app)
+
+# # Create models directory
+# os.makedirs("models", exist_ok=True)
+# print("✅ Models directory created")
+
+# # Your existing helper functions (keep all of them exactly as you have them)
+# def unique(lst):
+#     found = []
+#     uni = 0
+#     for pos,val in enumerate(lst):
+#         if val not in found:
+#             uni += 1
+#             found.append(val)
+#     return uni
+
+# def fKeras(labels):
+#     ret_mat = []
+#     classes = unique(labels)
+#     found = []
+#     for i,val in enumerate(labels):
+#         if val not in found:
+#             found.append(val)
+#     for i,val in enumerate(labels):
+#         temp = []
+#         for pos,string in enumerate(found):
+#             if string == val:
+#                 temp.append(1)
+#             else:
+#                 temp.append(0)
+#         ret_mat.append(temp)
+#     return ret_mat, classes
+
+# def FindNum(num):
+#     greatest = num[0][0]
+#     greatest_num = 0
+#     for num_i in range(len(num[0])):
+#         comp = num[0][num_i]
+#         if comp > greatest:
+#             greatest_num = num_i
+#             greatest = comp
+#     return greatest_num
+
+# def build_model(model_data, type, numclasses):
+#     classes = 10 if type == "pretrained" else numclasses
+#     built_model = tf.keras.models.Sequential()
+    
+#     # ... your existing build_model logic ...
+#     built_model.add(tf.keras.Input(shape=(28,28,1)))
+    
+#     prev_layer = None
+#     prev_nodes = 0
+    
+#     for pos,layer in enumerate(model_data['layers']):
+#         if layer['name'] == "Layer" and (prev_layer == "Convolutional Layer" or pos == 0):
+#             built_model.add(tf.keras.layers.Flatten())
+#         elif layer['name'] == "Convolutional Layer" and prev_layer == "Layer":
+#             built_model.add(tf.keras.layers.Reshape(target_shape=(prev_nodes,1,1)))
+
+#         if layer['name'] == "Convolutional Layer":
+#             built_model.add(tf.keras.layers.Conv2D(layer['layers'], (4,4), activation="relu", padding="same"))
+#             if layer['pooling'] > 0:
+#                 built_model.add(tf.keras.layers.MaxPool2D((layer['pooling'],layer['pooling'])))
+#         elif layer['name'] == "Layer":
+#             built_model.add(tf.keras.layers.Dense(layer['layers'], activation="relu"))
+        
+#         prev_layer = layer['name']
+#         prev_nodes = layer['layers']
+    
+#     if prev_layer == "Convolutional Layer" or len(model_data['layers'])==0:
+#         built_model.add(tf.keras.layers.Flatten())
+
+#     built_model.add(tf.keras.layers.Dense(classes, activation="softmax"))
+#     return built_model
+
+# def ParamLimit(value):
+#     return value >= 200000
+
+# def fr_train_model(model_data, built_model, c_x_train, c_y_train):
+#     time_now = time.time()
+#     built_model.fit(c_x_train, c_y_train, epochs=model_data['epochs'], batch_size=100, verbose=2)
+#     return built_model, round(time.time() - time_now, 3)
+
+# def load_mnist_data():
+#     print("📥 Loading MNIST data...")
+#     (x_train, y_train), (x_test, y_test) = mnist.load_data()
+#     x_train = x_train / 255
+#     x_test = x_test / 255
+#     x_train = x_train.reshape((x_train.shape[0],28,28,1))
+#     x_test = x_test.reshape((x_test.shape[0],28,28,1))
+#     y_train = tf.keras.utils.to_categorical(y_train)
+#     y_test = tf.keras.utils.to_categorical(y_test)
+#     print("✅ MNIST data loaded and processed")
+#     return (x_train, y_train), (x_test, y_test)
+
+# @app.route('/')
+# def root():
+#     return {"message": "You were the chosen one..."}
+
+# @app.route('/health')
+# def health():
+#     return {"status": "healthy", "timestamp": time.time()}
+
+# @app.route('/train/', methods=['POST'])
+# def train_model():
+#     try:
+#         model_data = request.get_json()
+#         print("🎯 Received training request")
+        
+#         (x_train, y_train), (x_test, y_test) = load_mnist_data()
+        
+#         model_accuracy = None
+        
+#         if not model_data.get('customData'):
+#             # Pretrained model logic
+#             built_model = build_model(model_data, "pretrained", None)
+#             built_model.compile(
+#                 metrics=["accuracy"], 
+#                 optimizer=tf.keras.optimizers.Adam(learning_rate=model_data['learningRate']), 
+#                 loss=tf.keras.losses.CategoricalCrossentropy()
+#             )
+            
+#             if ParamLimit(built_model.count_params()):
+#                 return jsonify([{
+#                     "modelID": "0", 
+#                     "accuracy": 0, 
+#                     "parameters": built_model.count_params(), 
+#                     "trainingTime": 0, 
+#                     "error": "Model too large"
+#                 }])
+            
+#             built_model, tt = fr_train_model(model_data, built_model, x_train, y_train)
+#             model_accuracy = float(round(built_model.evaluate(x_test, y_test)[1], 4) * 100)
+#         else:
+#             # Custom data logic
+#             c_x_train = np.array([instance['drawing'] for instance in model_data['customData']]).reshape(len(model_data['customData']), 28, 28, 1) / 255
+#             c_y_train = [instance['label'] for instance in model_data['customData']]
+            
+#             c_y_train, numclasses = fKeras(c_y_train)
+#             built_model = build_model(model_data, "custom", numclasses)
+#             built_model.compile(
+#                 metrics=["accuracy"], 
+#                 optimizer=tf.keras.optimizers.Adam(learning_rate=model_data['learningRate']), 
+#                 loss=tf.keras.losses.CategoricalCrossentropy()
+#             )
+            
+#             c_y_train = np.array(c_y_train)
+#             built_model, tt = fr_train_model(model_data, built_model, c_x_train, c_y_train)
+#             model_accuracy = 101
+        
+#         model_id = str(uuid.uuid4())
+#         model_name = f"model-{model_id}.keras"
+#         built_model.save(f"models/{model_name}")
+        
+#         # Clean up old models
+#         for model_filename in os.listdir("models"):
+#             model_path = os.path.join("models", model_filename)
+#             if os.path.getmtime(model_path) < time.time() - 86400:  # 24 hours
+#                 os.remove(model_path)
+        
+#         return jsonify([{
+#             "modelID": model_id,
+#             "accuracy": model_accuracy,
+#             "parameters": built_model.count_params(),
+#             "trainingTime": tt,
+#             "error": ""
+#         }])
+        
+#     except Exception as e:
+#         print(f"❌ Training error: {e}")
+#         return jsonify([{
+#             "modelID": "0",
+#             "accuracy": 0,
+#             "parameters": 0,
+#             "trainingTime": 0,
+#             "error": str(e)
+#         }])
+
+# @app.route('/predict/', methods=['POST'])
+# def predict():
+#     try:
+#         predict_data = request.get_json()
+#         print("🎯 Received prediction request")
+        
+#         model_name = f"model-{predict_data['modelID']}.keras"
+#         loaded_model = tf.keras.models.load_model(f"models/{model_name}")
+        
+#         image = np.array(predict_data['predictImg']).reshape((1, 28, 28, 1))
+#         prediction_idx = FindNum(loaded_model.predict(image))
+#         prediction = predict_data['labels'][prediction_idx]
+        
+#         return jsonify([{"prediction": prediction}])
+        
+#     except Exception as e:
+#         print(f"❌ Prediction error: {e}")
+#         return jsonify([{"prediction": f"Error: {str(e)}"}])
+
+# # DEBUGGING ROUTE
+# @app.route('/simple-test/', methods=['POST'])
+# def simple_test():
+#     try:
+#         print("✅ Simple test endpoint reached")
+#         return jsonify({"status": "simple test works", "timestamp": time.time()})
+#     except Exception as e:
+#         print(f"❌ Simple test error: {e}")
+#         return jsonify({"error": str(e)}), 500
+
+# # if __name__ == '__main__':
+# #     port = int(os.environ.get('PORT', 8080))
+# #     print(f"🚀 Starting Flask server on port {port}")
+# #     app.run(host='0.0.0.0', port=port, debug=False)
+
+# print("🎉 Flask app ready for production")
+
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import tensorflow as tf
-import numpy as np
-import tensorflow.keras.datasets.mnist as mnist
-import time
 import os
-import uuid
 
-print("🚀 Starting Flask application...")
-
-# Reduce TensorFlow logging
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+print("🚀 Starting minimal Flask app...")
 
 app = Flask(__name__)
 CORS(app)
-
-# Create models directory
-os.makedirs("models", exist_ok=True)
-print("✅ Models directory created")
-
-# Your existing helper functions (keep all of them exactly as you have them)
-def unique(lst):
-    found = []
-    uni = 0
-    for pos,val in enumerate(lst):
-        if val not in found:
-            uni += 1
-            found.append(val)
-    return uni
-
-def fKeras(labels):
-    ret_mat = []
-    classes = unique(labels)
-    found = []
-    for i,val in enumerate(labels):
-        if val not in found:
-            found.append(val)
-    for i,val in enumerate(labels):
-        temp = []
-        for pos,string in enumerate(found):
-            if string == val:
-                temp.append(1)
-            else:
-                temp.append(0)
-        ret_mat.append(temp)
-    return ret_mat, classes
-
-def FindNum(num):
-    greatest = num[0][0]
-    greatest_num = 0
-    for num_i in range(len(num[0])):
-        comp = num[0][num_i]
-        if comp > greatest:
-            greatest_num = num_i
-            greatest = comp
-    return greatest_num
-
-def build_model(model_data, type, numclasses):
-    classes = 10 if type == "pretrained" else numclasses
-    built_model = tf.keras.models.Sequential()
-    
-    # ... your existing build_model logic ...
-    built_model.add(tf.keras.Input(shape=(28,28,1)))
-    
-    prev_layer = None
-    prev_nodes = 0
-    
-    for pos,layer in enumerate(model_data['layers']):
-        if layer['name'] == "Layer" and (prev_layer == "Convolutional Layer" or pos == 0):
-            built_model.add(tf.keras.layers.Flatten())
-        elif layer['name'] == "Convolutional Layer" and prev_layer == "Layer":
-            built_model.add(tf.keras.layers.Reshape(target_shape=(prev_nodes,1,1)))
-
-        if layer['name'] == "Convolutional Layer":
-            built_model.add(tf.keras.layers.Conv2D(layer['layers'], (4,4), activation="relu", padding="same"))
-            if layer['pooling'] > 0:
-                built_model.add(tf.keras.layers.MaxPool2D((layer['pooling'],layer['pooling'])))
-        elif layer['name'] == "Layer":
-            built_model.add(tf.keras.layers.Dense(layer['layers'], activation="relu"))
-        
-        prev_layer = layer['name']
-        prev_nodes = layer['layers']
-    
-    if prev_layer == "Convolutional Layer" or len(model_data['layers'])==0:
-        built_model.add(tf.keras.layers.Flatten())
-
-    built_model.add(tf.keras.layers.Dense(classes, activation="softmax"))
-    return built_model
-
-def ParamLimit(value):
-    return value >= 200000
-
-def fr_train_model(model_data, built_model, c_x_train, c_y_train):
-    time_now = time.time()
-    built_model.fit(c_x_train, c_y_train, epochs=model_data['epochs'], batch_size=100, verbose=2)
-    return built_model, round(time.time() - time_now, 3)
-
-def load_mnist_data():
-    print("📥 Loading MNIST data...")
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train = x_train / 255
-    x_test = x_test / 255
-    x_train = x_train.reshape((x_train.shape[0],28,28,1))
-    x_test = x_test.reshape((x_test.shape[0],28,28,1))
-    y_train = tf.keras.utils.to_categorical(y_train)
-    y_test = tf.keras.utils.to_categorical(y_test)
-    print("✅ MNIST data loaded and processed")
-    return (x_train, y_train), (x_test, y_test)
 
 @app.route('/')
 def root():
@@ -523,115 +664,35 @@ def root():
 
 @app.route('/health')
 def health():
-    return {"status": "healthy", "timestamp": time.time()}
+    return {"status": "healthy"}
+
+@app.route('/simple-test/', methods=['POST'])
+def simple_test():
+    print("✅ Simple test endpoint reached")
+    return jsonify({"status": "simple test works"})
 
 @app.route('/train/', methods=['POST'])
 def train_model():
     try:
-        model_data = request.get_json()
-        print("🎯 Received training request")
-        
-        (x_train, y_train), (x_test, y_test) = load_mnist_data()
-        
-        model_accuracy = None
-        
-        if not model_data.get('customData'):
-            # Pretrained model logic
-            built_model = build_model(model_data, "pretrained", None)
-            built_model.compile(
-                metrics=["accuracy"], 
-                optimizer=tf.keras.optimizers.Adam(learning_rate=model_data['learningRate']), 
-                loss=tf.keras.losses.CategoricalCrossentropy()
-            )
-            
-            if ParamLimit(built_model.count_params()):
-                return jsonify([{
-                    "modelID": "0", 
-                    "accuracy": 0, 
-                    "parameters": built_model.count_params(), 
-                    "trainingTime": 0, 
-                    "error": "Model too large"
-                }])
-            
-            built_model, tt = fr_train_model(model_data, built_model, x_train, y_train)
-            model_accuracy = float(round(built_model.evaluate(x_test, y_test)[1], 4) * 100)
-        else:
-            # Custom data logic
-            c_x_train = np.array([instance['drawing'] for instance in model_data['customData']]).reshape(len(model_data['customData']), 28, 28, 1) / 255
-            c_y_train = [instance['label'] for instance in model_data['customData']]
-            
-            c_y_train, numclasses = fKeras(c_y_train)
-            built_model = build_model(model_data, "custom", numclasses)
-            built_model.compile(
-                metrics=["accuracy"], 
-                optimizer=tf.keras.optimizers.Adam(learning_rate=model_data['learningRate']), 
-                loss=tf.keras.losses.CategoricalCrossentropy()
-            )
-            
-            c_y_train = np.array(c_y_train)
-            built_model, tt = fr_train_model(model_data, built_model, c_x_train, c_y_train)
-            model_accuracy = 101
-        
-        model_id = str(uuid.uuid4())
-        model_name = f"model-{model_id}.keras"
-        built_model.save(f"models/{model_name}")
-        
-        # Clean up old models
-        for model_filename in os.listdir("models"):
-            model_path = os.path.join("models", model_filename)
-            if os.path.getmtime(model_path) < time.time() - 86400:  # 24 hours
-                os.remove(model_path)
-        
+        print("🎯 Training endpoint reached")
         return jsonify([{
-            "modelID": model_id,
-            "accuracy": model_accuracy,
-            "parameters": built_model.count_params(),
-            "trainingTime": tt,
+            "modelID": "test123",
+            "accuracy": 95.5,
+            "parameters": 1000,
+            "trainingTime": 5.2,
             "error": ""
         }])
-        
     except Exception as e:
-        print(f"❌ Training error: {e}")
         return jsonify([{
             "modelID": "0",
             "accuracy": 0,
             "parameters": 0,
             "trainingTime": 0,
             "error": str(e)
-        }])
+        }]), 500
 
-@app.route('/predict/', methods=['POST'])
-def predict():
-    try:
-        predict_data = request.get_json()
-        print("🎯 Received prediction request")
-        
-        model_name = f"model-{predict_data['modelID']}.keras"
-        loaded_model = tf.keras.models.load_model(f"models/{model_name}")
-        
-        image = np.array(predict_data['predictImg']).reshape((1, 28, 28, 1))
-        prediction_idx = FindNum(loaded_model.predict(image))
-        prediction = predict_data['labels'][prediction_idx]
-        
-        return jsonify([{"prediction": prediction}])
-        
-    except Exception as e:
-        print(f"❌ Prediction error: {e}")
-        return jsonify([{"prediction": f"Error: {str(e)}"}])
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8080))
+    print(f"🚀 Starting Flask server on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
 
-# DEBUGGING ROUTE
-@app.route('/simple-test/', methods=['POST'])
-def simple_test():
-    try:
-        print("✅ Simple test endpoint reached")
-        return jsonify({"status": "simple test works", "timestamp": time.time()})
-    except Exception as e:
-        print(f"❌ Simple test error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-# if __name__ == '__main__':
-#     port = int(os.environ.get('PORT', 8080))
-#     print(f"🚀 Starting Flask server on port {port}")
-#     app.run(host='0.0.0.0', port=port, debug=False)
-
-print("🎉 Flask app ready for production")
