@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/ps/Desktop/Dev Files/vscode files/innovation_week_2025/builder-demo/backend/venv/bin/python3" "$0" "$@"
-' '''
+#!/home/ec2-user/builder-demo/backend/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

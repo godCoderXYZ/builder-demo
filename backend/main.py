@@ -59,10 +59,10 @@ def load_mnist_data():
     
     try:
         # Load from your pre-downloaded .npy files
-        x_train = np.load('mnist_data/x_train.npy')
-        y_train = np.load('mnist_data/y_train.npy')
-        x_test = np.load('mnist_data/x_test.npy')
-        y_test = np.load('mnist_data/y_test.npy')
+        x_train = np.load('mnist_data/x_train.npy', allow_pickle=True)
+        y_train = np.load('mnist_data/y_train.npy', allow_pickle=True)
+        x_test = np.load('mnist_data/x_test.npy', allow_pickle=True)
+        y_test = np.load('mnist_data/y_test.npy', allow_pickle=True)
         
         print("✅ MNIST data loaded from local files")
         print(f"📊 Training data shape: {x_train.shape}")
