@@ -5,7 +5,8 @@ export const POST: RequestHandler = (async ({request}) => {
 
     // const response = await fetch('http://127.0.0.1:8080/predict/', {
     // const response = await fetch('https://builder-demo-production-f269.up.railway.app/predict/', {
-    const response = await fetch('https://deep-dive-into-ai-backend.onrender.com/predict/', {
+    // const response = await fetch('https://deep-dive-into-ai-backend.onrender.com/predict/', {
+    const response = await fetch('http://15.134.33.92:8000/predict/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
