@@ -22,9 +22,9 @@
 </script>
 
 {#if items.length == 0}
-<p>Drag layers here to start building</p>
+<p class="text-center">Drag layers here to start building</p>
 {/if}
-<section class="w-72 px-6 pb-12" use:dndzone="{{items, flipDurationMs, dropFromOthersDisabled, dropTargetStyle: {outline: 'rgba(50, 61, 118, 1) solid 4px'}}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
+<section class="w-72 px-6 pb-12 mx-auto" use:dndzone="{{items, flipDurationMs, dropFromOthersDisabled, dropTargetStyle: {outline: 'rgba(50, 61, 118, 1) solid 4px'}}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
     {#each items as block(block.id)}
     <div class="touch-none" animate:flip="{{duration: flipDurationMs}}">
     <div class="flex flex-row items-center min-h-16 border-2 rounded-2xl border-base-100 {block.name == 'Layer' ? 'bg-[#460e0e]' : block.name == 'Convolutional Layer' ? 'bg-[#1a2e1a]' : 'bg-blue-950'}">

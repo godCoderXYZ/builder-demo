@@ -233,24 +233,124 @@
 
 <div class="md:col-span-4 md:row-span-2 order-1 md:order-2 bg-[#1f202d] rounded-md mx-2 mb-2 mt-3">
 	<div class="rounded-md border-b-2 border-solid border-base-100 bg-[#212051]"><p class="p-2 text-center text-xl font-semibold">Build Space: </p></div>
-	<div class="flex justify-center">
-		<div class="flex flex-row items-center w-80 min-h-16 border-2 rounded-2xl border-base-100 bg-[#323d76]">
-		<p class="flex-grow text-lg text-center p-2 ml-6">Input Layer</p>
-		<div class="dropdown dropdown-hover dropdown-bottom dropdown-end ml-auto pr-1">
-		  <label tabindex="0" class="btn btn-circle btn-ghost btn-xs text-info">
-		    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-		  </label>
-		  <div tabindex="0" class="card compact dropdown-content z-[1] shadow bg-base-100 rounded-box w-64">
-		    <div class="card-body">
-		      <h2 class="card-title">Input Layer</h2>
-		      <p>This layer is where the data is inputted.</p>
-		    </div>
-		  </div>
+	<div class="flex flex-col lg:flex-row gap-4 p-6">
+		<!-- Left column: Input Layer and Blocks -->
+		<div class="flex-1 flex flex-col">
+			<div class="flex justify-center mb-6">
+				<div class="flex flex-row items-center w-80 min-h-16 border-2 rounded-2xl border-base-100 bg-[#323d76]">
+					<p class="flex-grow text-lg text-center p-2 ml-6">Input Layer</p>
+					<div class="dropdown dropdown-hover dropdown-bottom dropdown-end ml-auto pr-1">
+						<label tabindex="0" class="btn btn-circle btn-ghost btn-xs text-info">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+						</label>
+						<div tabindex="0" class="card compact dropdown-content z-[1] shadow bg-base-100 rounded-box w-64">
+							<div class="card-body">
+								<h2 class="card-title">Input Layer</h2>
+								<p>This layer is where the data is inputted. <br/><br/> In reality, there are 28x28=784 input nodes: one for each pixel in the input image. However, we simplify this picture in the Neural Network Visualization on the right.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="flex-1">
+				<BlocksSpace bind:items/>
+			</div>
 		</div>
-	</div>
-	</div>
-	<div class="flex flex-col items-center px-6 pb-6">
-		<BlocksSpace bind:items/>
+
+		<!-- Right column: Neural Network Visualization -->
+		<div class="flex-1 border-2 border-base-100 rounded-lg bg-[#14333d] p-4 flex items-center justify-center min-h-96">
+			{#if items.length == 0}
+				<p class="text-center text-base-content opacity-50 absolute">Neural Network Visualization</p>
+			{:else}
+				<svg width="100%" height="100%" viewBox="0 0 400 300" class="w-full h-full">
+					<!-- Input Layer -->
+					<g>
+						<text x="15" y="20" font-size="12" fill="#94a3b8">Input</text>
+						{#each Array(10) as _, j}
+							<circle
+								cx={25}
+								cy={40 + (j * 27.5)}
+								r="4"
+								fill="#323d76"
+							/>
+						{/each}
+					</g>
+
+					<!-- Connections from input to first layer -->
+					{#if items.length > 0}
+						{#each Array(10) as _, j}
+							{#each Array(items[0].layers) as _, k}
+								<line
+									x1={25}
+									y1={40 + (j * 27.5)}
+									x2={75}
+									y2={30 + (k * (270 / items[0].layers))}
+									stroke="#3b82f6"
+									stroke-width="0.5"
+									opacity="0.3"
+								/>
+							{/each}
+						{/each}
+					{/if}
+
+					{#each items as item, i}
+						{#each Array(item.layers) as _, j}
+							<!-- Nodes -->
+							<circle
+								cx={75 + i * 50}
+								cy={30 + (j * (270 / item.layers))}
+								r={item.layers < 10 ? 40/10 ** 0.8 : 40 / item.layers ** 0.8}
+								fill="#9c2f2f"
+							/>
+							<!-- Connections to next layer -->
+							{#if i < items.length - 1}
+								{#each Array(items[i + 1].layers) as _, k}
+									<line
+										x1={75 + i * 50}
+										y1={30 + (j * (270 / item.layers))}
+										x2={75 + (i + 1) * 50}
+										y2={30 + (k * (270 / items[i + 1].layers))}
+										stroke="#d1a3a3"
+										stroke-width="1"
+										opacity="0.5"
+									/>
+								{/each}
+							{/if}
+						{/each}
+					{/each}
+
+					<!-- Output Layer -->
+					<g>
+						<text x={75 + (items.length - 1) * 50 + 40} y="20" font-size="12" fill="#94a3b8">Output</text>
+						{#each Array(10) as _, j}
+							<circle
+								cx={75 + (items.length - 1) * 50 + 50}
+								cy={40 + (j * 28)}
+								r="5"
+								fill="oklch(94.5% 0.129 101.54)"
+							/>
+						{/each}
+					</g>
+
+					<!-- Connections from last layer to output layer -->
+					{#if items.length > 0}
+						{#each Array(10) as _, j}
+							{#each Array(items[items.length - 1].layers) as _, k}
+								<line
+									x1={75 + (items.length - 1) * 50}
+									y1={30 + (k * (270 / items[items.length - 1].layers))}
+									x2={75 + (items.length - 1) * 50 + 50}
+									y2={40 + (j * 28)}
+									stroke="oklch(94.5% 0.129 101.54)"
+									stroke-width="0.5"
+									opacity="0.3"
+								/>
+							{/each}
+						{/each}
+					{/if}
+				</svg>
+			{/if}
+		</div>
 	</div>
 </div>
 
